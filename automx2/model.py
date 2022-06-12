@@ -71,7 +71,7 @@ class Davserver(db.Model):
     type = db.Column(db.String(32), nullable=False)
     use_ssl = db.Column(db.Boolean, nullable=False)
     domain_required = db.Column(db.Boolean, nullable=False)
-    user_name = db.Column(db.String(64), nullable=True)
+    user_name = db.Column(db.String(64), nullable=True, default=PLACEHOLDER_ADDRESS)
     domains = db.relationship('Domain', secondary=davserver_domain_map, lazy='subquery',
                               backref=db.backref('davservers', lazy='select'))
 
@@ -96,11 +96,21 @@ class Ldapserver(db.Model):
         return f'<Ldapserver id={self.id} name={self.name}>'
 
 
+class Redirect(db.Model):
+    id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
+    url = db.Column(db.String(128), nullable=False)
+    domains = db.relationship('Domain', lazy='select', backref=db.backref('redirect', lazy='joined'))
+
+    def __repr__(self) -> str:
+        return f'<Redirect id={self.id} url={self.url}>'
+
+
 class Domain(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True, autoincrement=True)
     name = db.Column(db.String(128), nullable=False, unique=True)
     provider_id = db.Column(db.Integer, db.ForeignKey('provider.id'), nullable=False)
     ldapserver_id = db.Column(db.Integer, db.ForeignKey('ldapserver.id'), nullable=True)
+    redirect_id = db.Column(db.Integer, db.ForeignKey('redirect.id'), nullable=True)
 
     def __repr__(self) -> str:
         return f'<Domain id={self.id} name={self.name}>'
