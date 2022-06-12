@@ -65,12 +65,15 @@ CREATE TABLE `domain` (
   `name` varchar(128) NOT NULL,
   `provider_id` int NOT NULL,
   `ldapserver_id` int DEFAULT NULL,
+  `redirect_id` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `provider_id` (`provider_id`),
   KEY `ldapserver_id` (`ldapserver_id`),
+  KEY `redirect_id` (`ldapserver_id`),
   CONSTRAINT `domain_ibfk_1` FOREIGN KEY (`provider_id`) REFERENCES `provider` (`id`),
-  CONSTRAINT `domain_ibfk_2` FOREIGN KEY (`ldapserver_id`) REFERENCES `ldapserver` (`id`)
+  CONSTRAINT `domain_ibfk_2` FOREIGN KEY (`ldapserver_id`) REFERENCES `ldapserver` (`id`),
+  CONSTRAINT `domain_ibfk_3` FOREIGN KEY (`redirect_id`) REFERENCES `redirect` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3005 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -98,6 +101,21 @@ CREATE TABLE `ldapserver` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `ldapserver`
+--
+
+DROP TABLE IF EXISTS `redirect`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `redirect` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `url` varchar(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+--
 -- Table structure for table `provider`
 --
 
@@ -110,8 +128,9 @@ CREATE TABLE `provider` (
   `short_name` varchar(32) NOT NULL,
   `sign` tinyint(1) DEFAULT 0 NOT NULL,
   `sign_cert` text NULL,
-  `sign_key` text NULL
-  PRIMARY KEY (`id`)
+  `sign_key` text NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `provider_chk_1` CHECK ((`sign` in (0,1)))
 ) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

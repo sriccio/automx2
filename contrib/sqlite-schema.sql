@@ -2,10 +2,11 @@ CREATE TABLE provider (
 	id INTEGER NOT NULL, 
 	name VARCHAR(128) NOT NULL, 
 	short_name VARCHAR(32) NOT NULL,
-	sign BOOLEAN DEFAULT 0 NOT NULL,
+	sign BOOLEAN NOT NULL,
 	sign_cert TEXT null,
 	sign_key TEXT null,
-	PRIMARY KEY (id)
+	PRIMARY KEY (id),
+	CHECK (sign IN (0, 1))
 );
 CREATE TABLE server (
 	id INTEGER NOT NULL, 
@@ -44,15 +45,22 @@ CREATE TABLE ldapserver (
 	PRIMARY KEY (id), 
 	CHECK (use_ssl IN (0, 1))
 );
+CREATE TABLE redirect (
+	id INTEGER NOT NULL,
+	url VARCHAR(128) NOT NULL,
+	PRIMARY KEY (id)
+);
 CREATE TABLE domain (
 	id INTEGER NOT NULL, 
 	name VARCHAR(128) NOT NULL, 
 	provider_id INTEGER NOT NULL, 
 	ldapserver_id INTEGER, 
-	PRIMARY KEY (id), 
+    redirect_id INTEGER,
+	PRIMARY KEY (id),
 	UNIQUE (name), 
 	FOREIGN KEY(provider_id) REFERENCES provider (id), 
-	FOREIGN KEY(ldapserver_id) REFERENCES ldapserver (id)
+	FOREIGN KEY(ldapserver_id) REFERENCES ldapserver (id),
+	FOREIGN KEY(redirect_id) REFERENCES redirect (id)
 );
 CREATE TABLE davserver_domain (
 	davserver_id INTEGER NOT NULL, 

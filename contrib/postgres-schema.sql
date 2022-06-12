@@ -79,7 +79,8 @@ CREATE TABLE public.domain (
     id integer NOT NULL,
     name character varying(128) NOT NULL,
     provider_id integer NOT NULL,
-    ldapserver_id integer
+    ldapserver_id integer,
+    redirect_id integer
 );
 
 
@@ -150,6 +151,39 @@ ALTER SEQUENCE public.ldapserver_id_seq OWNED BY public.ldapserver.id;
 
 
 --
+-- Name: redirect; Type: TABLE; Schema: public; Owner: user
+--
+
+CREATE TABLE public.redirect (
+    id integer NOT NULL,
+    url character varying(128) NOT NULL
+);
+
+
+ALTER TABLE public.redirect OWNER TO "user";
+
+--
+-- Name: redirect_id_seq; Type: SEQUENCE; Schema: public; Owner: user
+--
+
+CREATE SEQUENCE public.redirect_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.redirect_id_seq OWNER TO "user";
+
+--
+-- Name: ldapserver_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: user
+--
+
+ALTER SEQUENCE public.redirect_id_seq OWNED BY public.redirect.id;
+
+--
 -- Name: provider; Type: TABLE; Schema: public; Owner: user
 --
 
@@ -157,9 +191,9 @@ CREATE TABLE public.provider (
     id integer NOT NULL,
     name character varying(128) NOT NULL,
     short_name character varying(32) NOT NULL,
-	sign boolean DEFAULT 0 NOT NULL,
-	sign_cert text null,
-	sign_key text null
+	sign boolean NOT NULL,
+	sign_cert text,
+	sign_key text
 );
 
 
@@ -315,6 +349,14 @@ ALTER TABLE ONLY public.ldapserver
 
 
 --
+-- Name: redirect redirect_pkey; Type: CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.redirect
+    ADD CONSTRAINT redirect_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: provider provider_pkey; Type: CONSTRAINT; Schema: public; Owner: user
 --
 
@@ -360,6 +402,14 @@ ALTER TABLE ONLY public.davserver_domain
 
 ALTER TABLE ONLY public.domain
     ADD CONSTRAINT domain_ldapserver_id_fkey FOREIGN KEY (ldapserver_id) REFERENCES public.ldapserver(id);
+
+
+--
+-- Name: domain domain_redirect_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: user
+--
+
+ALTER TABLE ONLY public.domain
+    ADD CONSTRAINT domain_redirect_id_fkey FOREIGN KEY (redirect_id) REFERENCES public.redirect(id);
 
 
 --
